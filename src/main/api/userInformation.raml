@@ -1,0 +1,116 @@
+#%RAML 0.8
+title: Sample API
+version: 1.0.0 
+
+  
+/user:
+  get: 
+    description: "Geting All Users"
+    responses: 
+       200: 
+        body: 
+          application/json:
+            example: !include userInfo.json
+       404: 
+        body: 
+          application/json: 
+            example: !include User_Not_Found.json
+  post:
+    description: "Creating new user Information"
+    responses: 
+       200: 
+        body: 
+          application/json:
+            example: !include userInfo.json
+            
+  /{id}:
+    get:
+      responses: 
+        200: 
+          body: 
+            application/json: 
+              example: !include userInfo.json
+            
+        404:
+          body: 
+            application/json: 
+              example: !include User_Not_Found.json
+      queryParameters: 
+        id:         
+          displayName: user id
+          type: integer 
+          description: individual user information
+          example: !include userInfo.json
+          required: false         
+    put:
+      responses: 
+        200: 
+          body: 
+            application/json: 
+              example: !include userInfo.json
+            
+        404:
+          body: 
+            application/json: 
+              example: !include User_Not_Found.json
+      queryParameters: 
+        id:         
+          displayName: user
+          type: integer 
+          description: individual user information
+          example: !include userInfo.json
+          required: false     
+   
+    delete: 
+      responses: 
+        200: 
+          body: 
+            application/json: 
+              example: "user deleted"
+            
+        404:
+          body: 
+            application/json: 
+              example: !include User_Not_Found.json
+                   
+  
+/address:
+   get: 
+    description: "Getting All Users Address"
+    responses: 
+       200: 
+        body: 
+          application/json:
+            example: !include userInfo.json
+       404: 
+        body: 
+          application/json: 
+            example: !include User_Not_Found.json     
+   post:
+    description: "Creating new user Information"
+    responses: 
+       200: 
+        body: 
+          application/json:
+            example: !include userInfo.json                       
+
+  
+/communication:
+  get: 
+    description: "Getting All Users Information"
+    responses: 
+       200: 
+        body: 
+          application/json:
+            example: !include userInfo.json
+       404: 
+        body: 
+          application/json: 
+            example: !include User_Not_Found.json   
+  post:
+    description: "Creating new user Information"
+    responses: 
+       200: 
+        body: 
+          application/json:
+            example: !include userInfo.json

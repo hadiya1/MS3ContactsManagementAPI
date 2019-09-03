@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <http:listener-config name="userInformation-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <apikit:config name="userInformation-config" raml="userInformation.raml" consoleEnabled="false" doc:name="Router"/>
+    <db:mysql-config name="MySQL_Configuration1" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration2" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration3" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration4" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration5" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration6" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration7" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration8" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration9" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration10" host="localhost" port="3306" user="root" database="msc3api" doc:name="MySQL Configuration"/>
+    <flow name="userInformation-main">
+        <http:listener config-ref="userInformation-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="userInformation-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="userInformation-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="userInformation-console">
+        <http:listener config-ref="userInformation-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="userInformation-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="put:/user/{id}:userInformation-config">
+        <db:update config-ref="MySQL_Configuration1" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into Identification (first_name, last_name, DOB, gender, title) values ( #[payload[0].first_name],#[payload[0].last_name], #[payload[0].DOB], #[payload[0].gender], #[payload[0].title])]]></db:parameterized-query>
+        </db:update>
+        <set-payload value="{&#xD;&#xA;        &quot;Identification&quot;: {&#xD;&#xA;                &quot;FirstName&quot;: &quot;Bob&quot;,&#xD;&#xA;                &quot;LastName&quot;: &quot;Frederick&quot;,&#xD;&#xA;                &quot;DOB&quot;: &quot;06/21/1980&quot;,&#xD;&#xA;                &quot;Gender&quot;: &quot;M&quot;,&#xD;&#xA;                &quot;Title&quot;: &quot;Manager&quot;&#xD;&#xA;        },&#xD;&#xA;        &quot;Address&quot;: [{&#xD;&#xA;                &quot;type &quot;: &quot;home&quot;,&#xD;&#xA;                &quot;number&quot;: 1234,&#xD;&#xA;                &quot;street&quot;: &quot;blah blah St&quot;,&#xD;&#xA;                &quot;Unit&quot;: &quot;1 a&quot;,&#xD;&#xA;                &quot;City&quot;: &quot;Somewhere&quot;,&#xD;&#xA;                &quot;State&quot;: &quot;WV&quot;,&#xD;&#xA;                &quot;zipcode&quot;: &quot;12345&quot;&#xD;&#xA;        }],&#xD;&#xA;        &quot;Communication&quot;: [{&#xD;&#xA;                        &quot;type&quot;: &quot;email&quot;,&#xD;&#xA;                        &quot;value&quot;: &quot;bfe@sample.com&quot;,&#xD;&#xA;                        &quot;preferred&quot; : &quot;true&quot;&#xD;&#xA;                },&#xD;&#xA;                {&#xD;&#xA;                        &quot;type&quot;: &quot;cell&quot;,&#xD;&#xA;                        &quot;value&quot;: &quot;304-555-8282&quot;&#xD;&#xA;                }&#xD;&#xA;        ]&#xD;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="delete:/user/{id}:userInformation-config">
+        <db:delete config-ref="MySQL_Configuration1" doc:name="Database">
+            <db:parameterized-query><![CDATA[Delete from Identification where user_id =#[message.inboundProperties.'http.listener.path'.user_id]]]></db:parameterized-query>
+        </db:delete>
+        <set-payload value="user deleted" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/communication:userInformation-config">
+        <db:select config-ref="MySQL_Configuration2" doc:name="Database">
+            <db:parameterized-query><![CDATA[select * from Communication]]></db:parameterized-query>
+        </db:select>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+
+    </flow>
+    <flow name="get:/user:userInformation-config">
+        <db:select config-ref="MySQL_Configuration5" doc:name="Database">
+            <db:parameterized-query><![CDATA[select * from Identification]]></db:parameterized-query>
+        </db:select>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+
+    </flow>
+    <flow name="get:/address:userInformation-config">
+        <db:select config-ref="MySQL_Configuration6" doc:name="Database">
+            <db:parameterized-query><![CDATA[select * from Address]]></db:parameterized-query>
+        </db:select>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+
+    </flow>
+    <flow name="get:/user/{id}:userInformation-config">
+        <db:select config-ref="MySQL_Configuration7" doc:name="Database">
+            <db:parameterized-query><![CDATA[select * from Identification where user_id =#[message.inboundProperties.'http.listener.path'.user_id]]]></db:parameterized-query>
+        </db:select>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+
+    </flow>
+    <flow name="post:/communication:userInformation-config">
+        <json:json-to-object-transformer returnClass="java.util.HashMap[]" doc:name="JSON to Object"/>
+        <db:insert config-ref="MySQL_Configuration8" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into Communication (first_name, last_name, DOB, gender, title) values ( #[payload[0].first_name],#[payload[0].last_name], #[payload[0].DOB], #[payload[0].gender], #[payload[0].title])]]></db:parameterized-query>
+        </db:insert>
+        <set-payload value="{&#xD;&#xA;        &quot;Identification&quot;: {&#xD;&#xA;                &quot;FirstName&quot;: &quot;Bob&quot;,&#xD;&#xA;                &quot;LastName&quot;: &quot;Frederick&quot;,&#xD;&#xA;                &quot;DOB&quot;: &quot;06/21/1980&quot;,&#xD;&#xA;                &quot;Gender&quot;: &quot;M&quot;,&#xD;&#xA;                &quot;Title&quot;: &quot;Manager&quot;&#xD;&#xA;        },&#xD;&#xA;        &quot;Address&quot;: [{&#xD;&#xA;                &quot;type &quot;: &quot;home&quot;,&#xD;&#xA;                &quot;number&quot;: 1234,&#xD;&#xA;                &quot;street&quot;: &quot;blah blah St&quot;,&#xD;&#xA;                &quot;Unit&quot;: &quot;1 a&quot;,&#xD;&#xA;                &quot;City&quot;: &quot;Somewhere&quot;,&#xD;&#xA;                &quot;State&quot;: &quot;WV&quot;,&#xD;&#xA;                &quot;zipcode&quot;: &quot;12345&quot;&#xD;&#xA;        }],&#xD;&#xA;        &quot;Communication&quot;: [{&#xD;&#xA;                        &quot;type&quot;: &quot;email&quot;,&#xD;&#xA;                        &quot;value&quot;: &quot;bfe@sample.com&quot;,&#xD;&#xA;                        &quot;preferred&quot; : &quot;true&quot;&#xD;&#xA;                },&#xD;&#xA;                {&#xD;&#xA;                        &quot;type&quot;: &quot;cell&quot;,&#xD;&#xA;                        &quot;value&quot;: &quot;304-555-8282&quot;&#xD;&#xA;                }&#xD;&#xA;        ]&#xD;&#xA;}" doc:name="Set Payload"/>
+        <set-property propertyName="Content Type" value="application/json" doc:name="Property"/>
+    </flow>
+    <flow name="post:/user:userInformation-config">
+        <json:object-to-json-transformer returnClass="java.util.HashMap[]" doc:name="Object to JSON"/>
+        <db:insert config-ref="MySQL_Configuration9" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into Identification (first_name, last_name, DOB, gender, title) values ( #[payload[0].first_name],#[payload[0].last_name], #[payload[0].DOB], #[payload[0].gender], #[payload[0].title])]]></db:parameterized-query>
+        </db:insert>
+        <set-payload value="{&#xD;&#xA;        &quot;Identification&quot;: {&#xD;&#xA;                &quot;FirstName&quot;: &quot;Bob&quot;,&#xD;&#xA;                &quot;LastName&quot;: &quot;Frederick&quot;,&#xD;&#xA;                &quot;DOB&quot;: &quot;06/21/1980&quot;,&#xD;&#xA;                &quot;Gender&quot;: &quot;M&quot;,&#xD;&#xA;                &quot;Title&quot;: &quot;Manager&quot;&#xD;&#xA;        },&#xD;&#xA;        &quot;Address&quot;: [{&#xD;&#xA;                &quot;type &quot;: &quot;home&quot;,&#xD;&#xA;                &quot;number&quot;: 1234,&#xD;&#xA;                &quot;street&quot;: &quot;blah blah St&quot;,&#xD;&#xA;                &quot;Unit&quot;: &quot;1 a&quot;,&#xD;&#xA;                &quot;City&quot;: &quot;Somewhere&quot;,&#xD;&#xA;                &quot;State&quot;: &quot;WV&quot;,&#xD;&#xA;                &quot;zipcode&quot;: &quot;12345&quot;&#xD;&#xA;        }],&#xD;&#xA;        &quot;Communication&quot;: [{&#xD;&#xA;                        &quot;type&quot;: &quot;email&quot;,&#xD;&#xA;                        &quot;value&quot;: &quot;bfe@sample.com&quot;,&#xD;&#xA;                        &quot;preferred&quot; : &quot;true&quot;&#xD;&#xA;                },&#xD;&#xA;                {&#xD;&#xA;                        &quot;type&quot;: &quot;cell&quot;,&#xD;&#xA;                        &quot;value&quot;: &quot;304-555-8282&quot;&#xD;&#xA;                }&#xD;&#xA;        ]&#xD;&#xA;}" doc:name="Set Payload"/>
+        <set-property propertyName="Content Type" value="application/json" doc:name="Property"/>
+    </flow>
+    <flow name="post:/address:userInformation-config">
+        <json:object-to-json-transformer returnClass="java.util.HashMap[]" doc:name="Object to JSON"/>
+        <db:insert config-ref="MySQL_Configuration10" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into Address (type, num, street, Unit, City, State, zipcode) values ( #[payload[0].type],#[payload[0].num], #[payload[0].street], #[payload[0].Unit], #[payload[0].City], #[payload[0].State, #[payload[0].zipcode])]]></db:parameterized-query>
+        </db:insert>
+        <set-payload value="{&#xD;&#xA;        &quot;Identification&quot;: {&#xD;&#xA;                &quot;FirstName&quot;: &quot;Bob&quot;,&#xD;&#xA;                &quot;LastName&quot;: &quot;Frederick&quot;,&#xD;&#xA;                &quot;DOB&quot;: &quot;06/21/1980&quot;,&#xD;&#xA;                &quot;Gender&quot;: &quot;M&quot;,&#xD;&#xA;                &quot;Title&quot;: &quot;Manager&quot;&#xD;&#xA;        },&#xD;&#xA;        &quot;Address&quot;: [{&#xD;&#xA;                &quot;type &quot;: &quot;home&quot;,&#xD;&#xA;                &quot;number&quot;: 1234,&#xD;&#xA;                &quot;street&quot;: &quot;blah blah St&quot;,&#xD;&#xA;                &quot;Unit&quot;: &quot;1 a&quot;,&#xD;&#xA;                &quot;City&quot;: &quot;Somewhere&quot;,&#xD;&#xA;                &quot;State&quot;: &quot;WV&quot;,&#xD;&#xA;                &quot;zipcode&quot;: &quot;12345&quot;&#xD;&#xA;        }],&#xD;&#xA;        &quot;Communication&quot;: [{&#xD;&#xA;                        &quot;type&quot;: &quot;email&quot;,&#xD;&#xA;                        &quot;value&quot;: &quot;bfe@sample.com&quot;,&#xD;&#xA;                        &quot;preferred&quot; : &quot;true&quot;&#xD;&#xA;                },&#xD;&#xA;                {&#xD;&#xA;                        &quot;type&quot;: &quot;cell&quot;,&#xD;&#xA;                        &quot;value&quot;: &quot;304-555-8282&quot;&#xD;&#xA;                }&#xD;&#xA;        ]&#xD;&#xA;}" doc:name="Set Payload"/>
+        <set-property propertyName="Content Type" value="application/json" doc:name="Property"/>
+    </flow>
+    <apikit:mapping-exception-strategy name="userInformation-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>
